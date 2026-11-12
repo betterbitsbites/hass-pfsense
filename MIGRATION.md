@@ -70,7 +70,7 @@ Set `VERSION` to the release you are installing (see
 [Releases](https://github.com/betterbitsbites/hass-pfsense/releases)):
 
 ```bash
-VERSION=v0.6.8
+VERSION=v0.6.9
 
 jq --arg v "$VERSION" '.data |= with_entries(
     if .value.full_name == "travisghansen/hass-pfsense" then
@@ -92,7 +92,7 @@ Expected output (two lines):
 
 ```
 {"full_name":"travisghansen/hass-pfsense","installed":false,"version_installed":null}
-{"full_name":"betterbitsbites/hass-pfsense","installed":true,"version_installed":"v0.6.8"}
+{"full_name":"betterbitsbites/hass-pfsense","installed":true,"version_installed":"v0.6.9"}
 ```
 
 If the `betterbitsbites` line is missing, step 1 didn't complete: run

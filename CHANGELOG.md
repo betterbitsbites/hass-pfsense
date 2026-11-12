@@ -1,8 +1,21 @@
-# Unreleased
+# v0.6.9
 
+Released 2026-11-12
+
+- fix entities piling up for firewall and NAT rules that no longer exist:
+  rule switches are keyed by the rule tracker, and rules that were deleted or
+  re-created with a new tracker (e.g. by packages that regenerate their
+  rules) left their switches behind forever. They are now removed from the
+  entity registry; existing leftovers are cleaned up on the first update
+- fix a new device and a complete new set of entities after a reboot when the
+  Netgate Device ID changes (travisghansen/hass-pfsense#227); the ID from the
+  initial setup is kept and a warning is logged
 - device tracker options: searchable device list (type to filter by hostname,
   IP or MAC), sorted by IP address with already tracked devices first;
   tracked devices that are currently offline stay in the list
+- add MIGRATION.md: switching from travisghansen/hass-pfsense to this fork
+  with the Home Assistant Marketplace, keeping all devices and entities
+- code owner and links updated to the renamed GitHub account betterbitsbites
 
 # v0.6.8
 
