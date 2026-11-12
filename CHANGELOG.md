@@ -1,3 +1,16 @@
+# v0.6.10
+
+Released 2026-11-12
+
+- fix v0.6.9 switching to the Netgate Device ID from the initial setup when
+  pfSense reports a different one. Installations whose ID had already changed
+  got their oldest set of entities back, and the entities in use (e.g. on
+  dashboards) became unavailable. Now the ID reported on the first start of
+  this version is stored in the config entry and kept from then on
+- remove entities and devices of other device ids (left behind by earlier
+  Netgate Device ID changes); rule switches that v0.6.9 removed for that
+  reason are re-created
+
 # v0.6.9
 
 Released 2026-11-12

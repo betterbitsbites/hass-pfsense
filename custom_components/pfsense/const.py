@@ -46,6 +46,9 @@ DEFAULT_DEVICE_TRACKER_CONSIDER_HOME = 0
 
 CONF_DEVICES = "devices"
 
+# Netgate Device ID locked in on the first start, see pfsense_device_unique_id
+CONF_DEVICE_UNIQUE_ID = "device_unique_id"
+
 COUNT = "count"
 
 # pulled from upnp component
