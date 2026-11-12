@@ -1,5 +1,6 @@
 """Config flow for pfSense integration."""
 
+import ipaddress
 import logging
 from urllib.parse import quote_plus, urlparse
 import xmlrpc
@@ -14,7 +15,12 @@ from homeassistant.const import (
     CONF_VERIFY_SSL,
 )
 from homeassistant.core import callback
-import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.selector import (
+    SelectOptionDict,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 from homeassistant.util import slugify
 import voluptuous as vol
 
@@ -248,22 +254,26 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         ):
             selected_devices = self.config_entry.options.get(CONF_DEVICES, [])
 
-            # dicts are ordered so put all previously selected items at the top
-            entries = {}
-            for device in selected_devices:
-                entries[device] = device
-
-            # follow with all arp table entries
+            # previously selected devices first (also when currently offline),
+            # followed by all other arp table entries sorted by ip address
+            labels = {device: f"{device} (not seen)" for device in selected_devices}
+            others = []
             for entry in arp_table:
                 mac = entry.get("mac-address", "").lower()
                 if len(mac) < 1:
                     continue
 
-                hostname = (entry.get("hostname") or "").strip("?")
-                ip = entry.get("ip-address") or ""
+                hostname = (entry.get("hostname") or "").strip("?").strip()
+                ip = (entry.get("ip-address") or "").strip()
 
-                label = f"{mac} - {hostname.strip()} ({ip.strip()})"
-                entries[mac] = label
+                labels[mac] = " · ".join(part for part in (hostname, ip, mac) if part)
+                if mac not in selected_devices:
+                    others.append((_ip_sort_key(ip), mac))
+
+            # a mac can show up with several ips, list it only once
+            ordered = list(
+                dict.fromkeys(selected_devices + [mac for _, mac in sorted(others)])
+            )
 
             return self.async_show_form(
                 step_id="device_tracker",
@@ -271,13 +281,33 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     {
                         vol.Optional(
                             CONF_DEVICES, default=selected_devices
-                        ): cv.multi_select(entries),
+                        ): SelectSelector(
+                            SelectSelectorConfig(
+                                options=[
+                                    SelectOptionDict(value=mac, label=labels[mac])
+                                    for mac in ordered
+                                ],
+                                multiple=True,
+                                # dropdown mode renders a searchable combo box
+                                mode=SelectSelectorMode.DROPDOWN,
+                                sort=False,
+                            )
+                        ),
                     }
                 ),
             )
         if user_input:
             self.new_options[CONF_DEVICES] = user_input[CONF_DEVICES]
         return self.async_create_entry(title="", data=self.new_options)
+
+
+def _ip_sort_key(ip: str):
+    """Sort key ordering IPv4 before IPv6 and numerically within each."""
+    try:
+        address = ipaddress.ip_address(ip)
+        return (address.version, int(address), ip)
+    except ValueError:
+        return (99, 0, ip)
 
 
 class InvalidURL(Exception):
