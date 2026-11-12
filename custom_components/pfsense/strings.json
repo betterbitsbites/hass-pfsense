@@ -38,7 +38,7 @@
         }
       },
       "device_tracker": {
-        "description": "Choose which devices you want to track.",
+        "description": "Choose which devices you want to track. Type to search by hostname, IP or MAC address.",
         "data": {
           "devices": "Devices to Track"
         }

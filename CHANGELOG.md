@@ -1,3 +1,9 @@
+# Unreleased
+
+- device tracker options: searchable device list (type to filter by hostname,
+  IP or MAC), sorted by IP address with already tracked devices first;
+  tracked devices that are currently offline stay in the list
+
 # v0.6.8
 
 Released 2026-11-11
